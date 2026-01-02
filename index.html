@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="モダンで使いやすい支出管理アプリケーション。日々の支出を記録・分析・可視化します。">
+    <meta name="keywords" content="支出管理,家計簿,予算管理,Chart.js,Bootstrap">
+    <meta name="author" content="Expense Tracker Pro">
+
+    <!-- OGP -->
+    <meta property="og:title" content="Expense Tracker Pro - 支出管理アプリ">
+    <meta property="og:description" content="モダンで使いやすい支出管理アプリケーション">
+    <meta property="og:type" content="website">
+
+    <title>💰 Expense Tracker Pro - 支出管理アプリ</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container-fluid">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="btn-menu" id="menuToggle" aria-label="メニュー">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="app-title">
+                        <i class="fas fa-wallet"></i>
+                        Expense Tracker
+                    </h1>
+                </div>
+                <div class="header-right">
+                    <button class="btn-icon" id="darkModeToggle" aria-label="ダークモード切替">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>ダッシュボード</span>
+                </a>
+                <a href="#add" class="nav-item" data-view="add">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>支出記録</span>
+                </a>
+                <a href="#list" class="nav-item" data-view="list">
+                    <i class="fas fa-list"></i>
+                    <span>支出一覧</span>
+                </a>
+                <a href="#analytics" class="nav-item" data-view="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>カテゴリ別集計</span>
+                </a>
+                <a href="#budget" class="nav-item" data-view="budget">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>予算管理</span>
+                </a>
+                <a href="#settings" class="nav-item" data-view="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>設定</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="content-view active">
+                <h2 class="page-title">📊 ダッシュボード</h2>
+
+                <div class="dashboard-grid">
+                    <!-- 今月の総支出 -->
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <i class="fas fa-yen-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">今月の総支出</p>
+                            <h3 class="stat-value" id="totalExpense">¥0</h3>
+                            <p class="stat-change" id="monthChange">
+                                <span class="change-icon"></span>
+                                <span class="change-text">前月比</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 予算使用率 -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">予算使用率</p>
+                            <h3 class="stat-value" id="budgetUsage">0%</h3>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="budgetProgress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 支出件数 -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">今月の支出件数</p>
+                            <h3 class="stat-value" id="expenseCount">0</h3>
+                            <p class="stat-subtext">件</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOP3 カテゴリ -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏆 TOP3 カテゴリ</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="topCategories" class="top-categories">
+                            <p class="text-muted">データがありません</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近の支出 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 最近の支出</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentExpenses" class="recent-expenses">
+                            <p class="text-muted">データがありません</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Expense View -->
+            <section id="view-add" class="content-view">
+                <h2 class="page-title">➕ 支出記録</h2>
+
+                <div class="card">
+                    <div class="card-body">
+                        <form id="expenseForm" class="expense-form">
+                            <div class="form-group">
+                                <label for="expenseDate" class="form-label">
+                                    <i class="fas fa-calendar"></i> 日付
+                                </label>
+                                <input type="date" id="expenseDate" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expenseCategory" class="form-label">
+                                    <i class="fas fa-tag"></i> カテゴリ
+                                </label>
+                                <select id="expenseCategory" class="form-select" required>
+                                    <option value="">選択してください</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expenseAmount" class="form-label">
+                                    <i class="fas fa-yen-sign"></i> 金額
+                                    <small class="text-muted">(計算式も使えます: 例 800+500)</small>
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" id="expenseAmount" class="form-control"
+                                        placeholder="1000 または 800+500" required>
+                                    <button type="button" class="btn btn-outline-secondary" id="calculatorBtn"
+                                        data-bs-toggle="tooltip" title="計算式が使えます（+, -, *, /）">
+                                        <i class="fas fa-calculator"></i>
+                                    </button>
+                                </div>
+                                <small class="form-text text-success" id="calculatorPreview" style="display: none;">
+                                    <i class="fas fa-equals"></i> <span id="previewValue"></span>
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expenseMemo" class="form-label">
+                                    <i class="fas fa-memo"></i> メモ（任意）
+                                </label>
+                                <textarea id="expenseMemo" class="form-control" placeholder="例: ランチ、コンビニなど"
+                                    maxlength="200" rows="3"></textarea>
+                                <small class="form-text">
+                                    <span id="memoCount">0</span>/200文字
+                                </small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 登録
+                                </button>
+                                <button type="reset" class="btn btn-secondary">
+                                    <i class="fas fa-redo"></i> リセット
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expense List View -->
+            <section id="view-list" class="content-view">
+                <h2 class="page-title">📝 支出一覧</h2>
+
+                <!-- Filters -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label class="form-label">期間</label>
+                                <div class="input-group">
+                                    <input type="date" id="filterStartDate" class="form-control">
+                                    <span class="input-group-text">〜</span>
+                                    <input type="date" id="filterEndDate" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <label class="form-label">カテゴリ</label>
+                                <select id="filterCategory" class="form-select">
+                                    <option value="">すべて</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label class="form-label">検索</label>
+                                <input type="text" id="searchQuery" class="form-control" placeholder="メモで検索...">
+                            </div>
+
+                            <div class="filter-actions">
+                                <button id="applyFilters" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i> 適用
+                                </button>
+                                <button id="clearFilters" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> クリア
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expense List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">支出リスト</h3>
+                        <div class="card-actions">
+                            <span id="listCount" class="count-badge">0件</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="expenseList" class="expense-list">
+                            <p class="text-muted">データがありません</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics View -->
+            <section id="view-analytics" class="content-view">
+                <h2 class="page-title">📊 カテゴリ別集計</h2>
+
+                <!-- Period Selector -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="period-selector">
+                            <button class="btn btn-outline-primary period-btn" data-period="week">今週</button>
+                            <button class="btn btn-outline-primary period-btn active" data-period="month">今月</button>
+                            <button class="btn btn-outline-primary period-btn" data-period="lastMonth">先月</button>
+                            <button class="btn btn-outline-primary period-btn" data-period="custom">カスタム</button>
+                        </div>
+                        <div id="customPeriod" class="custom-period" style="display: none;">
+                            <div class="input-group mt-3">
+                                <input type="date" id="analyticsStartDate" class="form-control">
+                                <span class="input-group-text">〜</span>
+                                <input type="date" id="analyticsEndDate" class="form-control">
+                                <button id="applyCustomPeriod" class="btn btn-primary">適用</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">カテゴリ別比率</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">カテゴリ別金額</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Summary -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">カテゴリ詳細</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="categorySummary" class="category-summary"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Budget View -->
+            <section id="view-budget" class="content-view">
+                <h2 class="page-title">🏦 予算管理</h2>
+
+                <!-- Budget Setting -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">月間予算設定</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="budgetForm" class="budget-form">
+                            <div class="form-group">
+                                <label for="monthlyBudget" class="form-label">月間予算</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" id="monthlyBudget" class="form-control" placeholder="100000"
+                                        min="0">
+                                    <button type="submit" class="btn btn-primary">保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Budget Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">予算状況</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="budgetStatus" class="budget-status">
+                            <p class="text-muted">予算を設定してください</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="view-settings" class="content-view">
+                <h2 class="page-title">⚙️ 設定</h2>
+
+                <!-- Data Management -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">データ管理</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="settings-section">
+                            <h4>エクスポート</h4>
+                            <div class="btn-group">
+                                <button id="exportCSV" class="btn btn-outline-primary">
+                                    <i class="fas fa-file-csv"></i> CSV形式でエクスポート
+                                </button>
+                                <button id="exportJSON" class="btn btn-outline-primary">
+                                    <i class="fas fa-file-code"></i> JSON形式でエクスポート
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h4>インポート</h4>
+                            <div class="import-area">
+                                <input type="file" id="importFile" accept=".csv,.json" style="display: none;">
+                                <button id="importBtn" class="btn btn-outline-primary">
+                                    <i class="fas fa-file-upload"></i> ファイルからインポート
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <h4>Google Spreadsheet連携</h4>
+                            <button id="syncSpreadsheet" class="btn btn-outline-success">
+                                <i class="fab fa-google"></i> Spreadsheetに同期
+                            </button>
+                            <p class="text-muted mt-2">
+                                <small>※ Google Apps Scriptの設定が必要です</small>
+                            </p>
+                        </div>
+
+                        <div class="settings-section danger">
+                            <h4>データ削除</h4>
+                            <button id="clearAllData" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> すべてのデータを削除
+                            </button>
+                            <p class="text-muted mt-2">
+                                <small>※ この操作は取り消せません</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- App Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">アプリ情報</h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>バージョン:</strong> 1.0.0</p>
+                        <p><strong>技術:</strong> HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js</p>
+                        <p><strong>データ保存:</strong> localStorage</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/gas-api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
